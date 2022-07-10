@@ -10,7 +10,7 @@ import content
 from datetime import datetime
 
 
-PROWLER_OUTPUT_FILE = "../prower/output/prowler-output.json"
+PROWLER_OUTPUT_FILE = "../prowler/output/prowler-output.json"
 REPORT_PATH_PREFIX = "./output/安全配置检查报告"
 
 
