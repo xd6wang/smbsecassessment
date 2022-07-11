@@ -60,7 +60,7 @@ class Report(object):
         para.font.name = "Microsoft YaHei"
         para._element.rPr.rFonts.set(qn("w:eastAsia"), "Microsoft YaHei")
         para.alignment = 1
-        
+
     def add_figure(self, figure, t):
         self.doc.add_picture(figure, width=Cm(15), height=Cm(9.9))
         paragraph = self.doc.add_paragraph()
@@ -225,29 +225,68 @@ def load_prowler_output():
         count_data_check,  # 8
         extra799_no_pass,  # 9
     )
-    
+
 
 def generate_figure(pass_counts, failed_counts, pass_percentage):
-    x=[metainfo.category_translate_map["iam"], metainfo.category_translate_map["infra"], metainfo.category_translate_map["detection"], metainfo.category_translate_map["data"]]
+    x = [
+        metainfo.category_translate_map["iam"],
+        metainfo.category_translate_map["infra"],
+        metainfo.category_translate_map["detection"],
+        metainfo.category_translate_map["data"],
+    ]
     yaxis_l = "检查项目数"
     yaxis_r = "通过率 (%)"
 
     fig = go.Figure(
         data=[
-            go.Bar(name="检查通过", x=x, y=pass_counts, yaxis='y',offsetgroup=1, marker=dict(color = "rgb(0, 204, 102)")),
-            go.Bar(name="检查未通过", x=x, y=failed_counts, yaxis='y',offsetgroup=1, base=pass_counts, marker=dict(color = "rgb(255, 92, 51)")),
-            go.Bar(name="通过率", x=x, y=pass_percentage, yaxis='y2', offsetgroup=2, marker=dict(color = "rgb(153, 204, 255)"))
+            go.Bar(
+                name="检查通过",
+                x=x,
+                y=pass_counts,
+                yaxis="y",
+                offsetgroup=1,
+                marker=dict(color="rgb(0, 204, 102)"),
+            ),
+            go.Bar(
+                name="检查未通过",
+                x=x,
+                y=failed_counts,
+                yaxis="y",
+                offsetgroup=1,
+                base=pass_counts,
+                marker=dict(color="rgb(255, 92, 51)"),
+            ),
+            go.Bar(
+                name="通过率",
+                x=x,
+                y=pass_percentage,
+                yaxis="y2",
+                offsetgroup=2,
+                marker=dict(color="rgb(153, 204, 255)"),
+            ),
         ],
         layout={
-            'yaxis': {'title': yaxis_l},
-            'yaxis2': {'title': yaxis_r, 'overlaying': 'y', 'side': 'right', 'range': [0, 100],},
-            'legend':{'bgcolor': 'rgba(0,0,0,0)', 'orientation': 'h', 'xanchor': 'left', 'yanchor': 'top', 'x': 0.01, 'y': 1.07},
-            'margin': dict(l=20, r=20, t=20, b=20),
-        }
+            "yaxis": {"title": yaxis_l},
+            "yaxis2": {
+                "title": yaxis_r,
+                "overlaying": "y",
+                "side": "right",
+                "range": [0, 100],
+            },
+            "legend": {
+                "bgcolor": "rgba(0,0,0,0)",
+                "orientation": "h",
+                "xanchor": "left",
+                "yanchor": "top",
+                "x": 0.01,
+                "y": 1.07,
+            },
+            "margin": dict(l=20, r=20, t=20, b=20),
+        },
     )
     # Change the bar mode
-    fig.update_layout(barmode='group')
-    
+    fig.update_layout(barmode="group")
+
     fig.write_image("output/fig.png")
 
 
@@ -268,7 +307,7 @@ def write_report():
     report.add_paragraph(
         content.summary.format(account, ret[4], ret[3], ret[3] / ret[4])
     )
-    
+
     # add figures
     count_iam_fail = len(failed_checks_by_category["iam"])
     count_iam_pass = ret[5] - count_iam_fail
@@ -278,9 +317,16 @@ def write_report():
     count_detection_pass = ret[7] - count_detection_fail
     count_data_fail = len(failed_checks_by_category["data"])
     count_data_pass = ret[8] - count_data_fail
-    generate_figure([count_iam_pass,count_infra_pass,count_detection_pass,count_data_pass], 
-                    [count_iam_fail, count_infra_fail, count_detection_fail, count_data_fail], 
-                    [count_iam_pass/ret[5]*100, count_infra_pass/ret[6]*100, count_detection_pass/ret[7]*100, count_data_pass/ret[8]*100])
+    generate_figure(
+        [count_iam_pass, count_infra_pass, count_detection_pass, count_data_pass],
+        [count_iam_fail, count_infra_fail, count_detection_fail, count_data_fail],
+        [
+            count_iam_pass / ret[5] * 100,
+            count_infra_pass / ret[6] * 100,
+            count_detection_pass / ret[7] * 100,
+            count_data_pass / ret[8] * 100,
+        ],
+    )
     report.add_figure("output/fig.png", "图表一： 各维度检查项目数及通过率")
 
     # add IAM sections
