@@ -49,12 +49,13 @@ Resources:
           ln -s /usr/local/bin/aws /usr/bin/
           git clone https://github.com/prowler-cloud/prowler
           git clone https://github.com/xd6wang/smbsecassessment
-          cp /home/ec2-user/smbsecassessment/group99_smb /home/ec2-user/prowler/groups/
+          cp /home/ec2-user/smbsecassessment/smbchecklist /home/ec2-user/prowler/
           cd /home/ec2-user/prowler
           aws configure set default.region ${AWS::Region}
-          ./prowler -g smb -M json,html -F prowler-output
-          aws s3 cp prowler-output.html s3://${SelfServiceSecS3Bucket}
+          ./prowler -C smbchecklist -M json,html -F prowler-output
+          aws s3 cp output/prowler-output.html s3://${SelfServiceSecS3Bucket}
           cd /home/ec2-user/smbsecassessment/
+          mkdir output
           pip3 install -r requirements.txt
           python3 main.py
           aws s3 cp output/*.docx s3://${SelfServiceSecS3Bucket}

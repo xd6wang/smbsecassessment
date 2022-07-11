@@ -55,7 +55,6 @@ check_group_map = {
     'extra795': ('infra', 'publicaccess'),
     'extra796': ('infra', 'publicaccess'),
     'extra798': ('infra', 'publicaccess'),
-    'check43': ('infra', 'publicaccess'),
     'check21': ('detection', 'audit'),
     'check22': ('detection', 'audit'),
     'check23': ('detection', 'audit'),
