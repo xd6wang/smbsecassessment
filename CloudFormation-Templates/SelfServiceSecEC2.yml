@@ -38,7 +38,7 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash
           yum -y update
-          yum -y install git jq 
+          yum -y install git jq wqy-zenhei-fonts.noarch
           yum -y remove awscli
           cd /home/ec2-user
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -58,6 +58,6 @@ Resources:
           mkdir output
           pip3 install -r requirements.txt
           python3 main.py
-          aws s3 cp output/*.docx s3://${SelfServiceSecS3Bucket}
+          env LANG=en_US.UTF-8 bash -c "aws s3 cp output/*.docx s3://${SelfServiceSecS3Bucket}"
 
           /sbin/init 0
