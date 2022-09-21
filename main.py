@@ -179,6 +179,7 @@ def load_prowler_output():
         "audit": set(),
         "monitoring": set(),
         "encryption": set(),
+        "backup": set(),
     }
 
     with open(PROWLER_OUTPUT_FILE, "r") as f:
@@ -305,7 +306,7 @@ def write_report():
     report = Report(report_path)
     report.add_title(content.title)
     report.add_paragraph(
-        content.summary.format(account, ret[4], ret[3], ret[3] / ret[4])
+        content.summary.format(account, ret[4], ret[3], ret[3] / ret[4] * 100)
     )
 
     # add figures

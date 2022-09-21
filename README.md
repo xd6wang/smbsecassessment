@@ -40,9 +40,14 @@
    - 我确认，AWS CloudFormation 可能创建具有自定义名称的 IAM 资源。
    - 我确认，AWS CloudFormation 可能需要以下功能: CAPABILITY_AUTO_EXPAND
 
+## 开启扫描与结束扫描
+1. CloudFormation堆栈创建完成后，将自动立即使用堆栈中创建的EC2主机进行扫描，无需进行任何手动操作
+2. 扫描结束后，EC2主机将自动关机，因此只要观察到该EC2关机即可认为扫描结束
+
 ## 下载报告
 1. 打开S3存储桶控制台，找到以创建CloudFormation堆栈时填入的堆栈名开头的存储桶，例如:yourstackname-rs3stack-xxxxx-rcentralizedbucket-xxxxxxxxxx
 2. 将其中的.docx文件下载至本地用Word打开即可
+注意：若执行扫描的EC2主机已关机但是在该S3存储桶中没有看到扫描报告，说明扫描出错，请在Issues中留言告知。
 
 ## 清理环境
 1. 当完成所有扫描并下载完扫描报告后，删除存放报告的S3存储桶中的所有文件

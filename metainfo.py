@@ -69,7 +69,8 @@ check_group_map = {
     'extra735': ('data', 'encryption'),
     'extra740': ('data', 'encryption'),
     'extra761': ('data', 'encryption'),
-    'extra797': ('data', 'encryption')
+    'extra797': ('data', 'encryption'),
+    'extra739': ('data', 'backup')
 }
 
 category_translate_map = {
