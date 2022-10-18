@@ -10,10 +10,10 @@
 
 # 开始部署
 
-### 在 AWS 海外区域部署
+- 在 AWS 海外区域部署
 https://github.com/xd6wang/smbsecassessment/blob/main/readme-global
 
-### 在 AWS 中国区域部署
+- 在 AWS 中国区域部署
 https://github.com/xd6wang/smbsecassessment/blob/main/readme-zhy-region.md
 
 
