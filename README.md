@@ -34,7 +34,7 @@ https://myners.notion.site/SMB-Sec-Assessment-69c1ff501c244f78b2698e6f14f77807
 2. 将CloudFormation-Templates目录中的所有.yml文件上传到该存储桶中
 3. 记录下SelfServiceSec.yml文件的S3对象URL，例如： https://s3-us-west-2.amazonaws.com/Your-Bucket-Name-Here/SelfServiceSec.yml
 
-## 北京宁夏部署
+## 中国北京宁夏区域请使用以下步骤部署
 1. 下载 cloudformation 文件：https://ots-tool.s3.us-west-2.amazonaws.com/bjs-zhy-codebuild-prowler-audit-account-cfn.yaml
 2. 打开宁夏区域控制台： https://cn-northwest-1.console.amazonaws.cn/cloudformation/home?region=cn-northwest-1#/stacks/create/template
 3. 上传下载的cloudformation 文件
