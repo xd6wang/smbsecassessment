@@ -34,6 +34,14 @@ https://myners.notion.site/SMB-Sec-Assessment-69c1ff501c244f78b2698e6f14f77807
 2. 将CloudFormation-Templates目录中的所有.yml文件上传到该存储桶中
 3. 记录下SelfServiceSec.yml文件的S3对象URL，例如： https://s3-us-west-2.amazonaws.com/Your-Bucket-Name-Here/SelfServiceSec.yml
 
+## 北京宁夏部署
+1. 下载 cloudformation 文件：https://ots-tool.s3.us-west-2.amazonaws.com/bjs-zhy-codebuild-prowler-audit-account-cfn.yaml
+2. 打开宁夏区域控制台： https://cn-northwest-1.console.amazonaws.cn/cloudformation/home?region=cn-northwest-1#/stacks/create/template
+3. 上传下载的cloudformation 文件
+4. 输入堆栈名称，其他值默认
+5. 等待五分钟，打开codebuild 控制台，并开始构建ProwlerCodeBuild-XXXX 项目： https://cn-northwest-1.console.amazonaws.cn/codesuite/codebuild/projects
+6. 等待codebuild 运行之后，可以在S3 找到扫描报告
+
 ## 创建CloudFormation 堆栈（Stack）
 1. 打开CloudFormation控制台界面，选择“创建堆栈”
 2. 选择“模版已就绪”，模版源选择“Amazon S3 URL”并填入上一步记录的SelfServiceSec.yml文件的S3对象URL
@@ -120,8 +128,6 @@ https://myners.notion.site/SMB-Sec-Assessment-69c1ff501c244f78b2698e6f14f77807
 2. 是否支持多账号扫描
     + 暂不支持
 
-3. 是否支持北京和宁夏区域
-    + 暂不支持
 
 
 # License
