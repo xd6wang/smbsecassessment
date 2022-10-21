@@ -180,6 +180,8 @@ def load_prowler_output():
         "monitoring": set(),
         "encryption": set(),
         "backup": set(),
+        "waf": set(),
+        "ddos": set(),
     }
 
     with open(PROWLER_OUTPUT_FILE, "r") as f:
