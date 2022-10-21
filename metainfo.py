@@ -69,7 +69,7 @@ check_group_map = {
     'extra713': ('detection', 'monitoring'),
     'extra7139': ('detection', 'monitoring'),
     'extra730': ('detection', 'monitoring'),
-    'extra769': ('detection', 'monitoring'),
+    'extra769m': ('detection', 'monitoring'),
     'extra799': ('detection', 'monitoring'),
     'extra729': ('data', 'encryption'),
     'extra735': ('data', 'encryption'),
