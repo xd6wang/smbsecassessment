@@ -20,7 +20,7 @@ https://myners.notion.site/SMB-Sec-Assessment-69c1ff501c244f78b2698e6f14f77807
 ## 创建一个S3存储桶并上传Cloudformation代码
 您需要把本代码库中的Cloudformation代码复制到一个S3存储桶中，用以创建Cloudformation 堆栈（Stack），因此请：
 1. 创建一个S3存储桶
-2. 将CloudFormation-Templates目录中的所有.yml文件上传到该存储桶中
+2. 将CloudFormation-Templates目录中的所有.yml文件上传到该存储桶的根目录中
 3. 记录下SelfServiceSec.yml文件的S3对象URL，例如： https://s3-us-west-2.amazonaws.com/Your-Bucket-Name-Here/SelfServiceSec.yml
 
 ## 创建CloudFormation 堆栈（Stack）

@@ -47,9 +47,10 @@ Resources:
           pip3 install "git+https://github.com/ibm/detect-secrets.git@master#egg=detect-secrets"
           ln -s /usr/local/bin/detect-secrets /usr/bin/
           ln -s /usr/local/bin/aws /usr/bin/
-          git clone https://github.com/prowler-cloud/prowler
-          git clone https://github.com/xd6wang/smbsecassessment
+          git clone --depth 1 https://github.com/prowler-cloud/prowler
+          git clone --depth 1 --branch v0.1.1-alpha https://github.com/xd6wang/smbsecassessment
           cp /home/ec2-user/smbsecassessment/smbchecklist /home/ec2-user/prowler/
+          cp /home/ec2-user/smbsecassessment/customized-checks/check_* /home/ec2-user/prowler/checks/
           cd /home/ec2-user/prowler
           aws configure set default.region ${AWS::Region}
           ./prowler -C smbchecklist -M json,html -F prowler-output
