@@ -41,6 +41,6 @@ extra7167m() {
       textInfo "$REGION: no Cloudfront distributions found" "$REGION"
     fi
   else
-    textFail "$REGION: no AWS Shield Advanced subscription found. Skipping check." "$REGION"
+    textFail "$REGION: no AWS Shield Advanced subscription found." "$REGION"
   fi
 }

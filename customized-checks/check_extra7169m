@@ -41,6 +41,6 @@ extra7169m() {
       textInfo "$REGION: no global accelerators found" "$REGION"
     fi
   else
-    textFail "$REGION: no AWS Shield Advanced subscription found. Skipping check." "$REGION"
+    textFail "$REGION: no AWS Shield Advanced subscription found." "$REGION"
   fi
 }

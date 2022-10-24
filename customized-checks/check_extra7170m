@@ -42,7 +42,7 @@ extra7170m() {
         textInfo "$regx: No application load balancers found" "$regx"
       fi
     else
-      textFail "$regx: No AWS Shield Advanced subscription found. Skipping check." "$regx"
+      textFail "$regx: No AWS Shield Advanced subscription found." "$regx"
     fi
   done
 }
