@@ -80,6 +80,8 @@ Resources:
         - ssm:GetDocument
         - support:Describe*
         - tag:GetTagKeys
+        - account:List*
+        - account:Get*
         Effect: Allow
         Resource: "*"
 Outputs:
