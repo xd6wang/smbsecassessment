@@ -1,8 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Cloudformation templates for smb security assessment
 
-Parameters:
-
 Resources:
   # Basic VPC required for the Security Review. This will create a VPC with 2 subnets in a single AZ. It will also create a NATGateway and a few VPC Endpoints.
   rVPCStack:
