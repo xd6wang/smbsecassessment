@@ -1,38 +1,10 @@
-# 如何部署（图文版）
-https://myners.notion.site/SMB-Sec-Assessment-69c1ff501c244f78b2698e6f14f77807
-<br />
-<br />
-
-# 如何部署（纯文字版）
-## 权限
-部署过程将在您的账号中创建一系列的资源，因此，请确保您做部署的IAM用户或角色有权限创建下列资源：
-+ IAM Role
-+ IAM Managed Policy
-+ VPC
-+ IGW
-+ Route tables
-+ Security Group
-+ NAT Gateway
-+ Elastic IP (EIP)
-+ EC2 Instance
-+ S3 Bucket
-
-## 创建一个S3存储桶并上传Cloudformation代码
-您需要把本代码库中的Cloudformation代码复制到一个S3存储桶中，用以创建Cloudformation 堆栈（Stack），因此请：
-1. 创建一个S3存储桶
-2. 将CloudFormation-Templates目录中的所有.yml文件上传到该存储桶的根目录中
-3. 记录下SelfServiceSec.yml文件的S3对象URL，例如： https://s3-us-west-2.amazonaws.com/Your-Bucket-Name-Here/SelfServiceSec.yml
 
 ## 创建CloudFormation 堆栈（Stack）
-1. 打开CloudFormation控制台界面，选择“创建堆栈”
-2. 选择“模版已就绪”，模版源选择“Amazon S3 URL”并填入上一步记录的SelfServiceSec.yml文件的S3对象URL
-3. 填入一个唯一的堆栈名字
-4. 在参数“TemplateS3Bucket”中填写之前创建的S3存储桶的名字。注意这里只填存储桶名，例如：your-bucket-name
-5. 按需填写标签（Tag）
-6. 权限部分可选择一个具备创建之前所述资源的IAM角色或者留空。若留空，则会使用您当前操作所使用的IAM权限进行资源创建
-7. 堆栈故障选项选择“回滚所有堆栈资源”
-8. 高级选项全部使用默认值
-9. 确认所有选项填写无误后，勾选以下两个选项后，点击“创建堆栈”：
+1. 打开链接一键启动扫描堆栈： https://amazon.webex.com/amazon/j.php?MTID=mac841f4236ba7cfdf5438722ce52df9a
+2. 权限部分可选择一个具备创建之前所述资源的IAM角色或者留空。若留空，则会使用您当前操作所使用的IAM权限进行资源创建
+3. 堆栈故障选项选择“回滚所有堆栈资源”
+4. 高级选项全部使用默认值
+5. 确认所有选项填写无误后，勾选以下两个选项后，点击“创建堆栈”：
    - 我确认，AWS CloudFormation 可能创建具有自定义名称的 IAM 资源。
    - 我确认，AWS CloudFormation 可能需要以下功能: CAPABILITY_AUTO_EXPAND
 
