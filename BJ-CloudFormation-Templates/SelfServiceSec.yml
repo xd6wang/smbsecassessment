@@ -1,0 +1,236 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates a CodeBuild project to audit an AWS account with Prowler and stores the html report in a S3 bucket. This will run onece at the beginning and on a schedule afterwards. Partial contribution from https://github.com/stevecjones
+Parameters:
+  ServiceName:
+    Description: 'Specifies the service name used within component naming'
+    Type: String
+    Default: 'ots'
+
+  LogsRetentionInDays:
+    Description: 'Specifies the number of days you want to retain CodeBuild run log events in the specified log group. Junit reports are kept for 30 days, HTML reports in S3 are not deleted'
+    Type: Number
+    Default: 3
+    AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 180, 365]
+  
+  ProwlerOptions:
+    Description: 'Options to pass to Prowler command, make sure at least -M junit-xml is used for CodeBuild reports. Use -r for the region to send API queries, -f to filter only one region, -M output formats, -c for comma separated checks, for all checks do not use -c or -g, for more options see -h. For a complete assessment use  "-M text,junit-xml,html,csv,json", for SecurityHub integration use "-r region -f region -M text,junit-xml,html,csv,json,json-asff -S -q"'
+    Type: String
+    Default: '-C smbchecklist -M json,html -F prowler-output'
+
+Resources:
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W35
+            reason: 'S3 Access Logging is not needed'
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${ServiceName}-${AWS::AccountId}-S3-Prowler-${AWS::StackName}'
+      BucketName: !Sub '${ServiceName}-reports-${AWS::Region}-prowler-${AWS::AccountId}'
+      AccessControl: LogDeliveryWrite
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W11
+            reason: 'Role complies with the least privilege principle.'
+    Properties:
+      Description: !Sub 'DO NOT DELETE - Used by CodeBuild. Created by CloudFormation Stack ${AWS::StackId}'
+      ManagedPolicyArns:
+        - !Sub 'arn:aws-cn:iam::aws:policy/job-function/SupportUser'
+        - !Sub 'arn:aws-cn:iam::aws:policy/job-function/ViewOnlyAccess'
+        - !Sub 'arn:aws-cn:iam::aws:policy/SecurityAudit'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action: 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+      Policies:
+        - PolicyName: S3
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketAcl
+                  - s3:GetBucketLocation
+                Effect: Allow
+                Resource: !Sub '${ArtifactBucket.Arn}/*'
+        - PolicyName: ProwlerAdditions
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                  - ds:ListAuthorizedApplications
+                  - ec2:GetEbsEncryptionByDefault
+                  - ecr:Describe*
+                  - elasticfilesystem:DescribeBackupPolicy
+                  - glue:GetConnections
+                  - glue:GetSecurityConfiguration
+                  - glue:SearchTables
+                  - lambda:GetFunction
+                  - s3:GetAccountPublicAccessBlock
+                  - shield:DescribeProtection
+                  - shield:GetSubscriptionState
+                  - ssm:GetDocument
+                  - support:Describe*
+                  - tag:GetTagKeys
+                Effect: Allow
+                Resource: '*'
+        - PolicyName: CodeBuild
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                  - codebuild:CreateReportGroup
+                  - codebuild:CreateReport
+                  - codebuild:UpdateReport
+                  - codebuild:BatchPutTestCases
+                  - codebuild:BatchPutCodeCoverages
+                Effect: Allow
+                Resource: !Sub 'arn:aws-cn:codebuild:${AWS::Region}:${AWS::AccountId}:report-group/*'
+        - PolicyName: SecurityHubBatchImportFindings
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action: securityhub:BatchImportFindings
+                Effect: Allow
+                Resource: !Sub 'arn:aws-cn:securityhub:*::product/prowler/prowler'
+
+  CodeBuildLogPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource: !GetAtt ProwlerLogGroup.Arn
+      PolicyName: LogGroup
+      Roles:
+        - !Ref CodeBuildServiceRole
+
+  CodeBuildAssumePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action: 'sts:AssumeRole'
+            Effect: Allow
+            Resource: !GetAtt CodeBuildServiceRole.Arn
+      PolicyName: AssumeRole
+      Roles:
+        - !Ref CodeBuildServiceRole
+
+  ProwlerCodeBuild:
+    Type: AWS::CodeBuild::Project
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W32
+            reason: 'KMS encryption is not needed.'
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      ConcurrentBuildLimit: 1
+      Source:
+        Type: NO_SOURCE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - echo pre_build phase...
+                - mkdir ~/.pip
+                - echo "[global]" >> ~/.pip/pip.conf
+                - echo "index-url = https://pypi.tuna.tsinghua.edu.cn/simple" >> ~/.pip/pip.conf
+                - echo "[install]" >> ~/.pip/pip.conf
+                - echo "trusted-host = https://pypi.tuna.tsinghua.edu.cn" >> ~/.pip/pip.conf
+                - cat ~/.pip/pip.conf
+            build:
+              commands:
+                - set -e
+                - echo Build started on `date`
+                - yum -y update
+                - yum -y install git jq wqy-zenhei-fonts.noarch
+                - cd ~
+                # - pip3 install "git+https://github.com/ibm/detect-secrets.git@master#egg=detect-secrets"
+                - ln -s /usr/local/bin/detect-secrets /usr/bin/
+                - ln -s /usr/local/bin/aws /usr/bin/
+                - wget https://ots-tool.s3.us-west-2.amazonaws.com/prowler.zip
+                - wget https://ots-tool.s3.us-west-2.amazonaws.com/smbsecassessment.zip
+                - unzip prowler.zip
+                - unzip smbsecassessment.zip
+                # - git clone --depth=1 https://github.com/prowler-cloud/prowler
+                # - git clone --depth=1 https://github.com/xd6wang/smbsecassessment
+                - mv ~/smbsecassessment-main ~/smbsecassessment
+                - mv ~/prowler-master ~/prowler
+                - cp ~/smbsecassessment/smbchecklist ~/prowler/
+                - cd ~/prowler
+                - aws configure set default.region cn-north-1
+                - ./prowler -C smbchecklist -M json,html -F prowler-output -z
+            post_build:
+              commands:
+                - aws s3 cp output/prowler-output.html s3://$BUCKET_REPORT/
+                - cd ~/smbsecassessment/
+                - mkdir output
+                - pip3 install -r requirements.txt
+                - python3 main.py
+                - aws s3 cp output/*.docx s3://$BUCKET_REPORT/
+                - echo Build completed on `date`
+      Environment:
+        ComputeType: "BUILD_GENERAL1_SMALL"
+        Image: "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
+        Type: "LINUX_CONTAINER"
+        EnvironmentVariables:
+          - Name: BUCKET_REPORT
+            Value: !Ref ArtifactBucket
+            Type: PLAINTEXT
+          - Name: PROWLER_OPTIONS
+            Value: !Ref ProwlerOptions
+            Type: PLAINTEXT
+      Description: Run Prowler assessment
+      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+      TimeoutInMinutes: 480
+
+  ProwlerLogGroup:
+    Type: 'AWS::Logs::LogGroup'
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W84
+            reason: 'KMS encryption is not needed.'
+    Properties:
+      LogGroupName: !Sub '/aws/codebuild/${ProwlerCodeBuild}'
+      RetentionInDays: !Ref LogsRetentionInDays
+
+Outputs:
+  ArtifactBucketName:
+    Description: Artifact Bucket Name
+    Value: !Ref ArtifactBucket
