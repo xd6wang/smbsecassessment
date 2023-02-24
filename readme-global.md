@@ -1,6 +1,6 @@
 
 ## 创建CloudFormation 堆栈（Stack）
-1. 打开链接一键启动扫描堆栈： https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=ots-scan&templateURL=https://ots-template.s3.amazonaws.com/SelfServiceSecV2.yml
+1. 打开链接一键启动扫描堆栈： https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=ots-scan&templateURL=https://ots-template.s3.amazonaws.com/SelfServiceSec.yml
 2. 权限部分可选择一个具备创建之前所述资源的IAM角色或者留空。若留空，则会使用您当前操作所使用的IAM权限进行资源创建
 3. 堆栈故障选项选择“回滚所有堆栈资源”
 4. 高级选项全部使用默认值
