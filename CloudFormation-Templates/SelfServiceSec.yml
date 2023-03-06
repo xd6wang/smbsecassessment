@@ -1,17 +1,36 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Cloudformation templates for smb security assessment
 
+Parameters:
+  TemplateS3Bucket:
+    Description: The name of the bucket you created to upload the project files.
+    Type: String
+    Default: YourBucketNameHere
+
+
 Resources:
   # Basic VPC required for the Security Review. This will create a VPC with 2 subnets in a single AZ. It will also create a NATGateway and a few VPC Endpoints.
   rVPCStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: 'https://ots-template.s3.amazonaws.com/SelfServiceSecVPC.yml'
+      TemplateURL: !Join
+        - ''
+        - - 'https://'
+          - !Ref TemplateS3Bucket
+          - '.s3.'
+          - !Ref "AWS::Region"
+          - '.amazonaws.com/SelfServiceSecVPC.yml'
   # This will create a single Role for EC2 Instance, leverage a few AWS Managed Policies and a few custom policies so Prowler can run.
   rIAMStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: 'https://ots-template.s3.amazonaws.com/SelfServiceSecIAM.yml'
+      TemplateURL: !Join
+        - ''
+        - - 'https://'
+          - !Ref TemplateS3Bucket
+          - '.s3.'
+          - !Ref "AWS::Region"
+          - '.amazonaws.com/SelfServiceSecIAM.yml'
       Parameters:
         SelfServiceSecS3Bucket: !GetAtt
             - rS3Stack
@@ -20,12 +39,24 @@ Resources:
   rS3Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: 'https://ots-template.s3.amazonaws.com/SelfServiceSecS3.yml'
+      TemplateURL: !Join
+        - ''
+        - - 'https://'
+          - !Ref TemplateS3Bucket
+          - '.s3.'
+          - !Ref "AWS::Region"
+          - '.amazonaws.com/SelfServiceSecS3.yml'
   #This will create a single Instance using Amazon Linux 2, and install/deploy Prowler
   rEC2Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: 'https://ots-template.s3.amazonaws.com/SelfServiceSecEC2.yml'
+      TemplateURL: !Join
+        - ''
+        - - 'https://'
+          - !Ref TemplateS3Bucket
+          - '.s3.'
+          - !Ref "AWS::Region"
+          - '.amazonaws.com/SelfServiceSecEC2.yml'
       Parameters:
         SelfServiceSecVPCID: !GetAtt
             - rVPCStack
