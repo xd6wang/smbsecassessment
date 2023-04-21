@@ -13,13 +13,12 @@
 2. 扫描结束后，EC2主机将自动关机，因此只要观察到该EC2关机即可认为扫描结束
 
 ## 下载报告
-1. 打开S3存储桶控制台，找到以创建CloudFormation堆栈时填入的堆栈名开头的存储桶，例如:yourstackname-rs3stack-xxxxx-rcentralizedbucket-xxxxxxxxxx
+1. 打开S3存储桶控制台，找到以创建CloudFormation堆栈时填入的堆栈名开头的存储桶,ots-scan-rs3stack-xxxxx-rcentralizedbucket-xxxxxxxxxx
 2. 将其中的.docx文件下载至本地用Word打开即可。注意：若执行扫描的EC2主机已关机但是在该S3存储桶中没有看到扫描报告，说明扫描出错，请在Issues中留言告知。
 
 ## 清理环境
 1. 当完成所有扫描并下载完扫描报告后，删除存放报告的S3存储桶中的所有文件
 2. S3存储桶清空后，打开CloudFormation控制台，选择之前创建的堆栈，点击删除按钮
-3. 手动删除之前用于上传Cloudformation代码的S3存储桶中的所有文件，然后再删除该存储桶
 
 
 
