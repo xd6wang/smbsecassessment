@@ -31,7 +31,6 @@ Resources:
         - Key: Name
           Value: !Sub '${ServiceName}-${AWS::AccountId}-S3-Prowler-${AWS::StackName}'
       BucketName: !Sub '${ServiceName}-reports-${AWS::Region}-prowler-${AWS::AccountId}'
-      AccessControl: LogDeliveryWrite
       VersioningConfiguration:
         Status: Enabled
       BucketEncryption:
