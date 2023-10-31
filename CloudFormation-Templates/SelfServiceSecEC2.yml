@@ -1,6 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: AWS CloudFormation template to launch an Instance for self service Security Review
 Parameters:
+  RuleGroup:
+    Type: String
   SelfServiceSecVPCID:
     Type: String
   SubnetAID:
@@ -53,7 +55,14 @@ Resources:
           cp /home/ec2-user/smbsecassessment/customized-checks/check_* /home/ec2-user/prowler/checks/
           cd /home/ec2-user/prowler
           aws configure set default.region ${AWS::Region}
-          ./prowler -C smbchecklist -M json,html -F prowler-output
+          echo 'rule group set to ' ${RuleGroup}
+          if [[ ${RuleGroup} != 'ots' ]];then
+            echo 'running in group mode ' ${RuleGroup}
+            ./prowler -g ${RuleGroup} -M json,html -F prowler-output
+          else
+            echo 'running in default mode ' ${RuleGroup}
+            ./prowler -C smbchecklist -M json,html -F prowler-output
+          fi
           aws s3 cp output/prowler-output.html s3://${SelfServiceSecS3Bucket}
           cd /home/ec2-user/smbsecassessment/
           mkdir output
