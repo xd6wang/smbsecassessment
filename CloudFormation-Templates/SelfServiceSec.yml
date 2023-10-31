@@ -1,6 +1,13 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Cloudformation templates for smb security assessment
 
+Parameters:
+  RuleGroup:
+    Description: 'Specific the rule set, eg. iso27001 will invesigate 123 rules to meet the requirements of iso27001'
+    Type: String
+    Default: 'ots'
+    AllowedValues: ['ots', 'iso27001', 'soc2']
+
 Resources:
   # Basic VPC required for the Security Review. This will create a VPC with 2 subnets in a single AZ. It will also create a NATGateway and a few VPC Endpoints.
   rVPCStack:
@@ -27,6 +34,7 @@ Resources:
     Properties:
       TemplateURL: 'https://ots-template.s3.amazonaws.com/SelfServiceSecEC2.yml'
       Parameters:
+        RuleGroup: !Ref RuleGroup
         SelfServiceSecVPCID: !GetAtt
             - rVPCStack
             - Outputs.SelfServiceSecVPCID
