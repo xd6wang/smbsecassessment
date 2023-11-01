@@ -50,7 +50,7 @@ Resources:
           ln -s /usr/local/bin/detect-secrets /usr/bin/
           ln -s /usr/local/bin/aws /usr/bin/
           git clone --branch prowler-2 --depth 1 https://github.com/prowler-cloud/prowler
-          git clone --depth 1 https://github.com/xd6wang/smbsecassessment
+          git clone --branch taptap --depth 1 https://github.com/xd6wang/smbsecassessment
           cp /home/ec2-user/smbsecassessment/smbchecklist /home/ec2-user/prowler/
           cp /home/ec2-user/smbsecassessment/customized-checks/check_* /home/ec2-user/prowler/checks/
           cd /home/ec2-user/prowler
