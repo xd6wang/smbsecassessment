@@ -161,10 +161,12 @@ def load_prowler_output():
     regions = set()
     count_non_info = 0
     count_fail = 0
-    count_iam_check = get_count_by_check_category("iam")
-    count_infra_check = get_count_by_check_category("infra")
-    count_detection_check = get_count_by_check_category("detection")
-    count_data_check = get_count_by_check_category("data")
+    check_count = {
+        'iam':0,
+        'infra':0,
+        'detection':0,
+        'data':0,
+    }
     extra799_no_pass = True
     failed_checks_by_category = {
         "iam": set(),
@@ -182,6 +184,7 @@ def load_prowler_output():
         "backup": set(),
         "waf": set(),
         "ddos": set(),
+        "other": set(),
     }
 
     with open(PROWLER_OUTPUT_FILE, "r") as f:
@@ -191,16 +194,19 @@ def load_prowler_output():
             finding = json.loads(line)
             findings.append(finding)
             check_id = finding["Control"].split("]")[0][1:]
+            # add field check_id
+            finding['check_id'] = check_id
             regions.add(finding["Region"])
             account = finding["Account Number"]
+            category = metainfo.getCategory(finding)
             if check_id not in findings_by_check.keys():
                 findings_by_check[check_id] = []
+                check_count[category] +=1
             if finding["Status"] == "FAIL":
                 count_non_info += 1
                 count_fail += 1
                 findings_by_check[check_id].append(finding)
-                category = metainfo.check_group_map[check_id][0]
-                subcategory = metainfo.check_group_map[check_id][1]
+                subcategory = metainfo.getSubCategory(finding)
                 failed_checks_by_category[category].add(check_id)
                 failed_checks_by_subcategory[subcategory].add(check_id)
 
@@ -211,6 +217,7 @@ def load_prowler_output():
 
         count_failed_checks = len([k for k, v in findings_by_check.items() if v])
         count_total_checks = len(findings_by_check.keys())
+        print("check_count", check_count, failed_checks_by_category)
 
     return (
         findings_by_check,
@@ -222,10 +229,10 @@ def load_prowler_output():
         count_fail,  # 2
         count_failed_checks,  # 3
         count_total_checks,  # 4
-        count_iam_check,  # 5
-        count_infra_check,  # 6
-        count_detection_check,  # 7
-        count_data_check,  # 8
+        check_count['iam'],  # 5
+        check_count['infra'],  # 6
+        check_count['detection'],  # 7
+        check_count['data'],  # 8
         extra799_no_pass,  # 9
     )
 
@@ -354,7 +361,7 @@ def write_report():
     # add Monitor sections
     report.add_heading(content.monitor_title)
     report.add_paragraph(content.monitor_general)
-    if len(findings_by_check["extra713"]) == 0:
+    if 'extra713' in findings_by_check.keys() and len(findings_by_check["extra713"]) == 0:
         report.add_paragraph(content.monitor_extra713_fail)
     if ret[9]:  # extra799_no_pass
         report.add_paragraph(content.monitor_extra799_no_pass)
@@ -374,7 +381,7 @@ def write_report():
                 [
                     findings[0]["Control"].split("]")[1].lstrip(),
                     metainfo.category_translate_map[
-                        metainfo.check_group_map[check_id][0]
+                        metainfo.getCategory(findings[0])
                     ],
                     check_id,
                     findings[0]["Service"],

@@ -85,3 +85,44 @@ category_translate_map = {
     'detection': '安全监控',
     'data': '数据安全'
 }
+
+# map "CAF Epic" to category
+epic_category_map = {
+    "Data Protection":'data',
+    "IAM":'iam',
+    "Infrastructure Security": 'infra',
+    "Logging and Monitoring": 'detection',
+}
+
+# return category info: iam/infra/detection/data
+def getCategory(findingInfo):
+    check_id = findingInfo['check_id']
+    epic = findingInfo['CAF Epic']
+    # default category set to infra
+    category = 'infra'
+    if check_id in check_group_map.keys():
+        category = check_group_map[check_id][0]
+    elif epic in epic_category_map.keys():
+        category = epic_category_map[epic]
+    #print(check_id, epic, category)
+    return category
+
+# return subCategory info
+# valid subCategory
+# "credentialleakage": set(),
+# "leastpriviledge": set(),
+# "publicaccess": set(),
+# "audit": set(),
+# "monitoring": set(),
+# "encryption": set(),
+# "backup": set(),
+# "waf": set(),
+# "ddos": set(),
+# "other": set(),
+def getSubCategory(findingInfo):
+    check_id = findingInfo['check_id']
+    # default subCategory set to other
+    subCategory = 'other'
+    if check_id in check_group_map.keys():
+        subCategory = check_group_map[check_id][1]
+    return subCategory
