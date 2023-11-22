@@ -166,9 +166,10 @@ Resources:
                 - echo pre_build phase...
                 - mkdir ~/.pip
                 - echo "[global]" >> ~/.pip/pip.conf
-                - echo "index-url = https://pypi.tuna.tsinghua.edu.cn/simple" >> ~/.pip/pip.conf
+                - echo "index-url = https://pypi.doubanio.com/simple" >> ~/.pip/pip.conf
                 - echo "[install]" >> ~/.pip/pip.conf
-                - echo "trusted-host = https://pypi.tuna.tsinghua.edu.cn" >> ~/.pip/pip.conf
+                - echo "trusted-host = https://pypi.doubanio.com" >> ~/.pip/pip.conf
+                - pip3 install --upgrade pip setuptools
                 - cat ~/.pip/pip.conf
             build:
               commands:
