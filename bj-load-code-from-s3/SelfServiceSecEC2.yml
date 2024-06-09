@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS CloudFormation template to launch an Instance for self service Security Review
+Parameters:
+  RuleGroup:
+    Type: String
+  SelfServiceSecVPCID:
+    Type: String
+  SubnetAID:
+    Type: String
+  SelfServiceSecS3Bucket:
+    Type: String
+  InstanceRoleName:
+    Type: String
+  LatestAmiId:
+    Type:  'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+Resources:
+  rInstanceSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "SelfServiceSec Security Instance SG"
+      VpcId: !Ref SelfServiceSecVPCID
+      Tags:
+      - Key: Name
+        Value: "SelfServiceSecSecuriyGroup"
+  rEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: m5a.large
+      Tags:
+      - Key: Name
+        Value: "SelfServiceSecSecurityInstance"
+      SecurityGroupIds:
+       - !GetAtt "rInstanceSG.GroupId"
+      ImageId: !Ref 'LatestAmiId'
+      SubnetId: !Ref SubnetAID
+      IamInstanceProfile: !Ref InstanceRoleName
+      # This will update the Instance, pull codes, run them and then write to the output to the S3 Bucket
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum -y update
+          yum -y install git jq wqy-zenhei-fonts.noarch
+          yum -y remove awscli
+          cd /home/ec2-user
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          ./aws/install
+          pip3 install "git+https://github.com/ibm/detect-secrets.git@master#egg=detect-secrets"
+          ln -s /usr/local/bin/detect-secrets /usr/bin/
+          ln -s /usr/local/bin/aws /usr/bin/
+          wget https://ots-template.s3.amazonaws.com/prowler.zip
+          wget https://ots-template.s3.amazonaws.com/smbsecassessment.zip
+          unzip prowler.zip
+          unzip smbsecassessment.zip
+          cp /home/ec2-user/smbsecassessment/smbchecklist /home/ec2-user/prowler/
+          cp /home/ec2-user/smbsecassessment/customized-checks/check_* /home/ec2-user/prowler/checks/
+          cd /home/ec2-user/prowler
+          aws configure set default.region ${AWS::Region}
+          echo 'rule group set to ' ${RuleGroup}
+          if [[ ${RuleGroup} != 'ots' ]];then
+            echo 'running in group mode ' ${RuleGroup}
+            ./prowler -g ${RuleGroup} -M json,html -F prowler-output
+          else
+            echo 'running in default mode ' ${RuleGroup}
+            ./prowler -C smbchecklist -M json,html -F prowler-output
+          fi
+          aws s3 cp output/prowler-output.html s3://${SelfServiceSecS3Bucket}
+          cd /home/ec2-user/smbsecassessment/
+          mkdir output
+          pip3 install -r requirements.txt
+          python3 main.py
+          env LANG=en_US.UTF-8 bash -c "aws s3 cp output/*.docx s3://${SelfServiceSecS3Bucket}"
+
+          /sbin/init 0

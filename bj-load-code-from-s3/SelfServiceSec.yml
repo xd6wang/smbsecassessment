@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Cloudformation templates for smb security assessment
+
+Parameters:
+  RuleGroup:
+    Description: 'Specific the rule set, eg. iso27001 will invesigate 123 rules to meet the requirements of iso27001'
+    Type: String
+    Default: 'ots'
+    AllowedValues: ['ots', 'iso27001', 'soc2']
+
+Resources:
+  # Basic VPC required for the Security Review. This will create a VPC with 2 subnets in a single AZ. It will also create a NATGateway and a few VPC Endpoints.
+  rVPCStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: 'https://ots-template.s3.amazonaws.com/bjs-load-zip/SelfServiceSecVPC.yml'
+  # This will create a single Role for EC2 Instance, leverage a few AWS Managed Policies and a few custom policies so Prowler can run.
+  rIAMStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: 'https://ots-template.s3.amazonaws.com/bjs-load-zip/SelfServiceSecIAM.yml'
+      Parameters:
+        SelfServiceSecS3Bucket: !GetAtt
+            - rS3Stack
+            - Outputs.SelfServiceSecS3Bucket
+  #This will create a Bucket where the output of Prowler will be delivered
+  rS3Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: 'https://ots-template.s3.amazonaws.com/bjs-load-zip/SelfServiceSecS3.yml'
+  #This will create a single Instance using Amazon Linux 2, and install/deploy Prowler
+  rEC2Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: 'https://ots-template.s3.amazonaws.com/bjs-load-zip/SelfServiceSecEC2.yml'
+      Parameters:
+        RuleGroup: !Ref RuleGroup
+        SelfServiceSecVPCID: !GetAtt
+            - rVPCStack
+            - Outputs.SelfServiceSecVPCID
+        SubnetAID: !GetAtt
+            - rVPCStack
+            - Outputs.SubnetAID
+        InstanceRoleName: !GetAtt
+            - rIAMStack
+            - Outputs.InstanceRoleName
+        SelfServiceSecS3Bucket: !GetAtt
+            - rS3Stack
+            - Outputs.SelfServiceSecS3Bucket
+
+Outputs:
+  ReportBucketName:
+    Description: The name of the newly generated S3 Bucket with reports from the tool
+    Value: !GetAtt rS3Stack.Outputs.SelfServiceSecS3Bucket

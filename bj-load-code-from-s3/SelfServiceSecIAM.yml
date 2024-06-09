@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS CloudFormation template IAM Role for SelfServiceSec Security
+Parameters:
+  SelfServiceSecS3Bucket:
+    Type: String
+Resources:
+  #This is the only Role created
+  rSelfServiceSecSecurityRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action: sts:AssumeRole
+      #Managed Policies attached for scanning
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/job-function/ViewOnlyAccess
+      - arn:aws:iam::aws:policy/SecurityAudit
+      Path: "/"
+      RoleName: SelfServiceSecSecurityRole
+  # The Instance Profile is required for EC2 Instance Roles
+  rSelfServiceSecSecurityInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: SelfServiceSecSecurityRole
+      Path: "/"
+      Roles:
+        - !Ref rSelfServiceSecSecurityRole
+  #This policy is required to write the output to the Bucket
+  rSelfServiceSecS3Policy:
+   Type: AWS::IAM::ManagedPolicy
+   Properties:
+    Roles:
+    - !Ref rSelfServiceSecSecurityRole
+    Description: Policy for SelfServiceSec Reports
+    Path: "/"
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+      - Action:
+        - s3:PutObject
+        Effect: Allow
+        Resource: !Join
+            - ''
+            - - 'arn:'
+              - !Ref 'AWS::Partition'
+              - ':s3:'
+              - '::'
+              - !Ref SelfServiceSecS3Bucket
+              - '/*'
+  #Additional Rights as required by Prowler for extra checks
+  rSelfServiceSecProwlerPolicy:
+   Type: AWS::IAM::ManagedPolicy
+   Properties:
+    Roles:
+    - !Ref rSelfServiceSecSecurityRole
+    Description: Policy for Prowler
+    Path: "/"
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+      - Action:
+        - ds:Get*
+        - ds:Describe*
+        - ds:List*
+        - ec2:GetEbsEncryptionByDefault
+        - ecr:Describe*
+        - elasticfilesystem:DescribeBackupPolicy
+        - glue:GetConnections
+        - glue:GetSecurityConfiguration
+        - glue:SearchTables
+        - lambda:GetFunction
+        - s3:GetAccountPublicAccessBlock
+        - shield:DescribeProtection
+        - shield:GetSubscriptionState
+        - ssm:GetDocument
+        - support:Describe*
+        - tag:GetTagKeys
+        - account:List*
+        - account:Get*
+        Effect: Allow
+        Resource: "*"
+Outputs:
+  InstanceRoleName:
+    Description: 'Instance Role'
+    Value: !Ref rSelfServiceSecSecurityRole
+  InstanceRoleARN:
+    Description: 'Instance Role ARN'
+    Value: !GetAtt rSelfServiceSecSecurityRole.Arn
