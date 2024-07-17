@@ -353,8 +353,8 @@ def write_report():
 
     # add Monitor sections
     report.add_heading(content.monitor_title)
-    report.add_paragraph(content.monitor_general)
-    #if len(findings_by_check["extra713"]) == 0:
+    report.add_paragraph(content.monitor_general)    
+    #if len(findings_by_check["extra713"]) == 0:    #yiming update by 240717
     #    report.add_paragraph(content.monitor_extra713_fail)
     if ret[9]:  # extra799_no_pass
         report.add_paragraph(content.monitor_extra799_no_pass)
