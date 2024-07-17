@@ -1,4 +1,7 @@
 #Fix issue of FAILED CREATE CHS Docs <安全配置检查报告-153705321444-20240717-114156.docx>
+cd /home/ec2-user/prowler/output
+ls /home/ec2-user/prowler/output/prowler-output.json
+这个中文报告就是根据EC2里面的这个json文件生成的:/home/ec2-user/prowler/output/prowler-output.json
 
 
 # 亚马逊云配置安全扫描 - 中小企业版
