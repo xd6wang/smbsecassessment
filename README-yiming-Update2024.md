@@ -45,7 +45,7 @@ IAM所需权限的介绍： 部署过程将在您的账号中创建一系列的�
 
 ![Untitled](https://raw.githubusercontent.com/liangyimingcom/storage/master/PicGo/Untitled%201.png)
 
-1. 创建成功后，将CloudFormation-Templates目录中的所有.yml文件上传到该存储桶中（[Github代码库](https://github.com/xd6wang/smbsecassessment/tree/main/CloudFormation-Templates)）。请注意务必把文件直接上传到S3桶的根目录（不允许有二级目录）！
+1. 创建成功后，将CloudFormation-Templates目录中的所有.yml文件上传到该存储桶中（[Github代码库](https://github.com/liangyimingcom/smbsecassessment/tree/main/CloudFormation-Templates)）。请注意务必把文件直接上传到S3桶的根目录（不允许有二级目录）！
 2. 选择全部的yml文件，然后 **Make public using ACL**
 
 ![Untitled](https://raw.githubusercontent.com/liangyimingcom/storage/master/PicGo/Untitled%202.png)
