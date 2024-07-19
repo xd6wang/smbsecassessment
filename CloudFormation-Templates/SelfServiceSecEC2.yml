@@ -57,6 +57,7 @@ Resources:
           aws s3 cp output/prowler-output.html s3://${SelfServiceSecS3Bucket}
           cd /home/ec2-user/smbsecassessment/
           mkdir output
+          pip3 install --upgrade pip
           pip3 install -r requirements.txt
           python3 main.py
           env LANG=en_US.UTF-8 bash -c "aws s3 cp output/*.docx s3://${SelfServiceSecS3Bucket}"
